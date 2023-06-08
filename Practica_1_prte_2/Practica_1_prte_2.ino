@@ -16,7 +16,7 @@
 //Directivas de preprocesador
 #define btn 3
 //Variables
-volatile static bool estado_led;
+volatile static bool estado;
 float temperatura;
 //Funciones de ISR
 void ISR_temp(void);
