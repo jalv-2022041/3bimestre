@@ -1,3 +1,14 @@
+/*
+ * Fundacion Kinal
+ * Centro educativo tecnico laboral Kinal
+ * Electronica
+ * Grado: Quinto
+ * Sección: A
+ * Curso: Taller de electronica digital y reparación de computadoras I
+ * Nombre: Josue David Alvizurs 
+ * Carnet: 2022041
+ * Proyecto: Practica 1
+*/
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #define direccion_lcd 0x3F
@@ -12,7 +23,6 @@ LiquidCrystal_I2C LCD_ALV(direccion_lcd, columnas, filas);
      LCD_ALV.init();
   LCD_ALV.backlight();
 }
-
 void loop() {
   LCD_ALV.setCursor(0,0);
   LCD_ALV.print("  Resistencia   ");
@@ -21,7 +31,6 @@ void loop() {
   LCD_ALV.print(ohms);
   LCD_ALV.print(" ohms          ");
 }
-
  int medicion_resistencia(){
     int lectura = 0;   //Valor de voltaje en el divisor de voltaje
     int Ve = 5;   // Vcc
@@ -29,7 +38,6 @@ void loop() {
     float R1 = 10000;     // Valor de la Resistencia de referencia
     float R2 = 0;         // Variable de la resistencia a encontrar
     float relacion = 0;
-
      lectura = analogRead(divisor_v);
    if(lectura) //Si detecta una resistencia
   {
