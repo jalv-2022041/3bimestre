@@ -15,7 +15,7 @@
 #define filas 2
 #define columnas 16
 #define divisor_v A0 
-int medicion_resistencia();
+int medicionR();
 LiquidCrystal_I2C LCD_ALV(direccion_lcd, columnas, filas); 
   void setup() {
     Serial.begin(9600);
@@ -26,12 +26,12 @@ LiquidCrystal_I2C LCD_ALV(direccion_lcd, columnas, filas);
 void loop() {
   LCD_ALV.setCursor(0,0);
   LCD_ALV.print("  Resistencia   ");
-  unsigned long int ohms = medicion_resistencia();
+  unsigned long int ohms = medicionR();
   LCD_ALV.setCursor(0,1);
   LCD_ALV.print(ohms);
-  LCD_ALV.print(" ohms          ");
+  LCD_ALV.print(" ohms");
 }
- int medicion_resistencia(){
+ int medicionR(){
     int lectura = 0;   //Valor de voltaje en el divisor de voltaje
     int Ve = 5;   // Vcc
     float VR2 = 0;    //Voltaje en la R2
@@ -45,11 +45,11 @@ void loop() {
     VR2 = (relacion)/1024.0;  //hace la relacion en la escala raw para voltaje 
   relacion = (Ve/VR2) -1;    //en la operacion sule existir un 1 que no deveria de estar entonces se le resta 1 para poder obtener el verdadero resultado
     R2= (R1 * relacion)-20;  //para tener mayor precicion
-    Serial.print("Resistancia: ");
+    Serial.print("el valor es de :");
     Serial.println(R2);
     return R2;
   } else {
-    Serial.println("Conecta una resistencia");
+    Serial.println("no hay resistencia");
     return 0;
     }
   }
