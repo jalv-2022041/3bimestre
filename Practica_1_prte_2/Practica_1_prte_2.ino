@@ -1,39 +1,46 @@
-#include <Ticker.h> //Esta libreria permite hacer uso del timer
+/*
+ * Fundacion Kinal
+ * Centro educativo tecnico laboral Kinal
+ * Electronica
+ * Grado: Quinto
+ * Sección: A
+ * Curso: Taller de electronica digital y reparación de computadoras I
+ * Nombre: Josue David Alvizurs 
+ * Carnet: 2022041
+ * Proyecto: Practica 1
+*/
+#include <Ticker.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Wire.h>
-
 //Directivas de preprocesador
-#define btn 4
-
+#define btn 3
 //Variables
-volatile static bool estado_led;
+volatile static bool estado;
 float temperatura;
-
 //Funciones de ISR
 void ISR_temp(void);
 void ISR_deteccion_btn(void);
-
 //Constructor
-Ticker ISR_obtener_temp(ISR_temp, 3000); //Cada 3 segundos obtiene la temperatura
-Ticker ISR_obtener_btn(ISR_deteccion_btn, 6000); //Cada 3 segundos obtiene la temperatura
-OneWire ourWire(6);  //Pin 5 para el sensor de temperatura
+Ticker isr_conseguir_temperatura(ISR_temp, 3000);
+Ticker isr_valor_boton(ISR_deteccion_btn, 6000);
+OneWire ourWire(5);
 DallasTemperature sensor(&ourWire);
 
 void setup() {
-Serial.begin(19200);
-ISR_obtener_temp.start(); //Iniciciando la interrupcion que se repetira cada N segundos
-ISR_obtener_btn.start(); //Iniciciando la interrupcion que se repetira cada N segundos
+Serial.begin(9600);
+isr_conseguir_temperatura.start();
+isr_valor_boton.start();
 sensor.begin(); 
 }
 void loop() {
-  ISR_obtener_temp.update();
-  ISR_obtener_btn.update();
+  isr_conseguir_temperatura.update();
+  isr_valor_boton.update();
 }
 void medicion(){
-  sensor.requestTemperatures();   //Se envía el comando para leer la temperatura
-  float temp = sensor.getTempCByIndex(0); //Se obtiene la temperatura en ºC
-  Serial.print("Temperatura= ");
+  sensor.requestTemperatures();
+  float temp = sensor.getTempCByIndex(0);
+  Serial.print("La temperatura es: ");
   Serial.print(temp);
   Serial.println(" C");
   }
@@ -43,9 +50,8 @@ void ISR_temp(){
 void ISR_deteccion_btn(){
   bool estado_btn = digitalRead(btn);
   if(estado_btn == 1){
-  Serial.println("boton activo");
+  Serial.println(" el boton activo");
 }
 if(estado_btn == 0){
-  Serial.println("boton inactivo");
-}
-}
+  Serial.println("el boton inactivo");
+}}
