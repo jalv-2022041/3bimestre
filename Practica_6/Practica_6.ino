@@ -2,156 +2,151 @@
 #include <SPI.h>
 #include <SparkFun_ADXL345.h>
 #include <LedControl.h>
-
-//Directivas
 #define ancho_matriz 8 
 #define alto_matriz 8
 #define DATO_PIN 12
 #define CLK_PIN 11
 #define CS_PIN 10
 
-//Variables
 float xg,yg,zg;
 float soh;
 float tilt;
 float angle;
 
-const byte desnivelmenos5[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11111101,
-  B11111101,
-  B11111111,
-  B00000000,
-  B00000000
+const byte derecha5[8] = {
+B00000000,
+B11111111,
+B11111111,
+B00000001,
+B00000001,
+B11111111,
+B11111111,
+B00000000
 };
 
-const byte desnivelmenos4[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11111001,
-  B11111001,
-  B11111111,
-  B00000000,
-  B00000000
+const byte derecha4[8] = {
+B00000000,
+B11111111,
+B11111111,
+B00000011,
+B00000011,
+B11111111,
+B11111111,
+B00000000
 };
 
-const byte desnivelmenos3[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11111011,
-  B11111011,
-  B11111111,
-  B00000000,
-  B00000000
+const byte derecha3[8] = {
+B00000000,
+B11111111,
+B11111111,
+B00000110,
+B00000110,
+B11111111,
+B11111111,
+B00000000
 };
 
-const byte desnivelmenos2[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11110011,
-  B11110011,
-  B11111111,
-  B00000000,
-  B00000000
+const byte derecha2[8] = {
+B00000000,
+B11111111,
+B11111111,
+B00001100,
+B00001100,
+B11111111,
+B11111111,
+B00000000
   };
 
-const byte desnivelmenos1[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11110111,
-  B11110111,
-  B11111111,
-  B00000000,
-  B00000000
+const byte derecha1[8] = {
+B00000000,
+B11111111,
+B11111111,
+B00001000,
+B00001000,
+B11111111,
+B11111111,
+B00000000
   };
 
 const byte centrado[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11100111,
-  B11100111,
-  B11111111,
-  B00000000,
-  B00000000};
+B00000000,
+B11111111,
+B11111111,
+B00011000,
+B00011000,
+B11111111,
+B11111111,
+B00000000};
 
-const byte desnivelmas1[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11101111,
-  B11101111,
-  B11111111,
-  B00000000,
-  B00000000};
+const byte izquierda1[8] = {
+B00000000,
+B11111111,
+B11111111,
+B00010000,
+B00010000,
+B11111111,
+B11111111,
+B00000000};
 
-const byte desnivelmas2[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11001111,
-  B11001111,
-  B11111111,
-  B00000000,
-  B00000000
+const byte izquierda2[8] = {
+B00000000,
+B11111111,
+B11111111,
+B00110000,
+B00110000,
+B11111111,
+B11111111,
+B00000000
 };
 
-const byte desnivelmas3[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B11011111,
-  B11011111,
-  B11111111,
-  B00000000,
-  B00000000
+const byte izquierda3[8] = {
+B00000000,
+B11111111,
+B11111111,
+B01100000,
+B01100000,
+B11111111,
+B11111111,
+B00000000
 };
 
-const byte desnivelmas4[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B10011111,
-  B10011111,
-  B11111111,
-  B00000000,
-  B00000000
+const byte izquierda4[8] = {
+B00000000,
+B11111111,
+B11111111,
+B11000000,
+B11000000,
+B11111111,
+B11111111,
+B00000000
 };
 
-const byte desnivelmas5[8] = {
-  B00000000,
-  B00000000,
-  B11111111,
-  B10111111,
-  B10111111,
-  B11111111,
-  B00000000,
-  B00000000
+const byte izquierda5[8] = {
+B00000000,
+B11111111,
+B11111111,
+100000000,
+B10000000,
+B11111111,
+B11111111,
+B00000000
 };
 
-//Constructores
-LedControl ledMatrix = LedControl(DATO_PIN,CLK_PIN,CS_PIN,1);
+LedControl MatrisLed = LedControl(DATO_PIN,CLK_PIN,CS_PIN,1);
 ADXL345 NIVEL = ADXL345();
 void setup() {
    Serial.begin(9600);    
-   ledMatrix.shutdown(0,false);    
-   ledMatrix.setIntensity(0,15);  //Brilo a la mitad 
-   ledMatrix.clearDisplay(0);    //limpio el display
+   MatrisLed.shutdown(0,false);    
+   MatrisLed.setIntensity(0,15);   
+   MatrisLed.clearDisplay(0);    
    NIVEL.powerOn();           
-   NIVEL.setRangeSetting(8);       //Definir el rango
+   NIVEL.setRangeSetting(8);       
 
 }
 
 void loop() {
    nivelacion();
-   animacion();
-   
+   animacion(); 
 }
 
 void nivelacion(){
@@ -162,82 +157,66 @@ void nivelacion(){
      yg = y*0.0039;
      zg = z*0.0039;
      soh = xg/zg;
-
      tilt = atan(soh)*57.296;
 }
-
 void animacion(){
-  Serial.println(tilt);
-  if((abs(tilt) > 90)){  //Ya se cayo la casa
-    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmas5[i]);
-      }
-    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmenos5[i]);
-      }
-  }
-  
-  if((tilt < -60) && ( tilt >= -90) ){  //Ya se cayo la casa
-    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmenos5[i]);
-      }
-  }
-  
-  if((tilt < -45) && (tilt >= -60 )){  //Demasiado Inclinado hacia la izquierda
-    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmenos4[i]);
-      }
-  }
-  if((tilt < -30) && (tilt >= -45 )){  //Muy Inclinado hacia la izquierda
-    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmenos3[i]);
+  if(tilt >= -5 && tilt <= 5){  //centro
+   for (int i = alto_matriz; i > 0; i--) {
+    MatrisLed.setColumn(0, i, centrado[i]);
       }
   }
 
-  if((tilt < -15) && (tilt >= -30 )){  //Poco Inclinado hacia la izquierda
+  if((tilt > 5) && (tilt <= 15 )){ 
    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmenos2[i]);
+    MatrisLed.setColumn(0, i, derecha1[i]);
       }
   }
   
-  if((tilt < -5) && (tilt >= -15 )){  //Muy poco Inclinado hacia la izquierda
+  if((tilt > 15) && (tilt <= 30 )){ 
    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmenos1[i]);
-      }
-  }
-  
-  if(tilt >= -5 && tilt <= 5){  //Correctamente Nivelado
-   for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, centrado[i]);
+    MatrisLed.setColumn(0, i, derecha2[i]);
       }
   }
 
-  if((tilt > 5) && (tilt <= 15 )){  //Muy poco inclinado hacia la derecha
+  if((tilt > 30) && (tilt <= 45 )){  
    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmas1[i]);
+    MatrisLed.setColumn(0, i, derecha3[i]);
       }
   }
   
-  if((tilt > 15) && (tilt <= 30 )){  //Poco Inclinado hacia la izquierda
+  if((tilt > 45) && (tilt <= 60 )){  
    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmas2[i]);
+    MatrisLed.setColumn(0, i, derecha4[i]);
       }
   }
-
-  if((tilt > 30) && (tilt <= 45 )){  //Muy Inclinado hacia la izquierda
+  if((tilt > 60) && (tilt <= 90 )){  
    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmas3[i]);
+    MatrisLed.setColumn(0, i, derecha5[i]);
       }
   }
-  
-  if((tilt > 45) && (tilt <= 60 )){  //Demasiado Inclinado hacia la izquierda
-   for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmas4[i]);
+    if((tilt < -60) && ( tilt >= -90) ){
+    for (int i = alto_matriz; i > 0; i--) {
+    MatrisLed.setColumn(0, i,derecha5[i]);
       }
   }
-  if((tilt > 60) && (tilt <= 90 )){  //No valido
+  if((tilt < -45) && (tilt >= -60 )){ 
+    for (int i = alto_matriz; i > 0; i--) {
+    MatrisLed.setColumn(0, i,derecha4[i]);
+      }
+  }
+    if((tilt < -30) && (tilt >= -45 )){ 
+    for (int i = alto_matriz; i > 0; i--) {
+    MatrisLed.setColumn(0, i,derecha3[i]);
+      }
+  }
+    if((tilt < -15) && (tilt >= -30 )){  
    for (int i = alto_matriz; i > 0; i--) {
-    ledMatrix.setColumn(0, i, desnivelmas5[i]);
+    MatrisLed.setColumn(0, i,derecha2[i]);
+      }
+  }
+    if((tilt < -5) && (tilt >= -15 )){ 
+   for (int i = alto_matriz; i > 0; i--) {
+    MatrisLed.setColumn(0, i, izquierda1[i]);
       }
   }
   }
