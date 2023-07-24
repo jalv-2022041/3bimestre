@@ -42,7 +42,7 @@ void loop() {
       if(intensidad_foco == 0){
         digitalWrite(dimerOn, LOW);
         }
-        if(dimersignal == 1 ) luz_int = 6300;   // Los 8 saltos del Deslizador 1 (Dimmer)
+        if(dimersignal == 1 ) luz_int = 6300; 
         if(dimersignal == 2 ) luz_int = 6100;  
         if(dimersignal == 3 ) luz_int = 5200;  
         if(dimersignal == 4 ) luz_int = 4900;  
