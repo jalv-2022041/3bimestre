@@ -114,41 +114,6 @@ else{
   if(array1[3] != array2[3])return(false);
   return(true);
 }
-void calculos(){
-  JOSUE_LCD.setCursor(0,1);
-  JOSUE_LCD.print("                ");
-  JOSUE_LCD.setCursor(2,1);
-  JOSUE_LCD.print("V: ");
-  float voltaje =  (float)25*analogRead(pinvoltaje)/1023;
-  JOSUE_LCD.print(voltaje);
-  JOSUE_LCD.print(" V   ");//  Voltaje
-  delay(2000); 
-  JOSUE_LCD.setCursor(2,1);
-  JOSUE_LCD.print("I: ");
-  float med = analogRead(corriente)*(5.0/1023.0);
-  float I = abs((2.5 - med)/Sensibilidad);
-  if(abs(I) >= 1 ){
-  JOSUE_LCD.print(I,3);
-  JOSUE_LCD.print(" A   ");
-  }
-  if(abs(I) < 1 ){
-  JOSUE_LCD.print(I*1000,0);
-  JOSUE_LCD.print(" mA   ");//  Corriente
-  }
-  delay(2000);
-  JOSUE_LCD.setCursor(2,1);
-  float P = voltaje * I;
-  JOSUE_LCD.print("P: ");
-  if(abs(P) >= 1 ){
-  JOSUE_LCD.print(I,3);
-  JOSUE_LCD.print(" W   ");
-  }
-  if(abs(P) < 1 ){
-  JOSUE_LCD.print(P*1000,0);
-  JOSUE_LCD.print(" mW   ");//  Potencia
-  }
-  delay(2000);
-  }
   void setDate( ) {
   if (digitalRead(configRTC) == HIGH) {
     GetDateStuff(Year, Month, Date, DoW, Hour, Minute, Second);
@@ -194,3 +159,38 @@ void GetDateStuff(byte& Year, byte& Month, byte& Day, byte& DoW, byte& Hour, byt
   Temp2 = (byte)InString[12] - 48;
   Second = Temp1 * 10 + Temp2;// segundos 
 }
+void calculos(){
+  JOSUE_LCD.setCursor(0,1);
+  JOSUE_LCD.print("                ");
+  JOSUE_LCD.setCursor(2,1);
+  JOSUE_LCD.print("V: ");
+  float voltaje =  (float)25*analogRead(pinvoltaje)/1023;
+  JOSUE_LCD.print(voltaje);
+  JOSUE_LCD.print(" V   ");//  Voltaje
+  delay(2000); 
+  JOSUE_LCD.setCursor(2,1);
+  JOSUE_LCD.print("I: ");
+  float med = analogRead(corriente)*(5.0/1023.0);
+  float I = abs((2.5 - med)/Sensibilidad);
+  if(abs(I) >= 1 ){
+  JOSUE_LCD.print(I,3);
+  JOSUE_LCD.print(" A   ");
+  }
+  if(abs(I) < 1 ){
+  JOSUE_LCD.print(I*1000,0);
+  JOSUE_LCD.print(" mA   ");//  Corriente
+  }
+  delay(2000);
+  JOSUE_LCD.setCursor(2,1);
+  float P = voltaje * I;
+  JOSUE_LCD.print("P: ");
+  if(abs(P) >= 1 ){
+  JOSUE_LCD.print(I,3);
+  JOSUE_LCD.print(" W   ");
+  }
+  if(abs(P) < 1 ){
+  JOSUE_LCD.print(P*1000,0);
+  JOSUE_LCD.print(" mW   ");//  Potencia
+  }
+  delay(2000);
+  }
