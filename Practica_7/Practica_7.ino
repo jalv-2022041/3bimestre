@@ -91,7 +91,7 @@ void loop() {
    Serial.print("/");
    Serial.print(Clock.getMonth(Century), DEC);
    Serial.print(" ");
-   Serial.print(Clock.getHour(h12, PM), DEC); //24-hr
+   Serial.print(Clock.getHour(h12, PM), DEC); 
    Serial.print(":");
    Serial.print(Clock.getMinute(), DEC);
    Serial.print(":");
