@@ -1,64 +1,112 @@
 #include <SPI.h>
+#include <Wire.h>
 #include <MFRC522.h>
+#include <DS3231.h>
+#include <LiquidCrystal_I2C.h>
 
+#define direccion_lcd 0x27
+#define filas 2
+#define columnas 16
 
-//Directivas
-#define RST_PIN  9    //Pin 9 para el reset del RC522
-#define SS_PIN  10   //Pin 10 para el SS (SDA) del RC522
-#define voltaje A0   //Pin Sensor de voltaje
-#define corriente A1 //Pin sensor de corriente
+#define RST_PIN  9   
+#define SS_PIN  10  
+#define pinvoltaje A0   
+#define corriente A7 
+#define configRTC 6 
 
-//Variables
-float Sensibilidad=0.185;
+float Sensibilidad = 0.185;
+byte Year ;
+byte Month ;
+byte Date ;
+byte DoW ;
+byte Hour ;
+byte Minute ;
+byte Second ;
+bool Century  = false;
+bool h12 ;
+bool PM ;
 
-//Constructores
-MFRC522 mfrc522(SS_PIN, RST_PIN); ///Creamos el objeto para el RC522
+byte ActualUID[4]; 
+byte Usuario2[4]= {0x79, 0x02, 0x9B, 0xD5} ; 
+byte Usuario1[4]= {0xF9, 0x90, 0xF8, 0xB3} ;
 
+MFRC522 mfrc522(SS_PIN, RST_PIN); 
+DS3231 Clock;
+LiquidCrystal_I2C JOSUE_LCD(direccion_lcd, columnas, filas);
 void setup() {
-  Serial.begin(9600); //Iniciamos La comunicacion serial
-  SPI.begin();        //Iniciamos el Bus SPI
-  mfrc522.PCD_Init(); // Iniciamos el MFRC522
-  Serial.println("Acceso: Estado del circuito");
-}
-
-byte ActualUID[4]; //almacenará el código del Tag leído
-byte Usuario1[4]= {0xC3, 0xF7, 0x35, 0xAD} ; //código del usuario 1
-byte Usuario2[4]= {0x22, 0xB9, 0xC9, 0x34} ; //código del usuario 2
+  Wire.begin();
+  Serial.begin(9600); 
+  SPI.begin();      
+  mfrc522.PCD_Init(); 
+  Serial.println("EEGSA - KINAL");
+  pinMode(pinvoltaje, INPUT);
+  pinMode(corriente, INPUT);
+  pinMode(configRTC, INPUT);
+  JOSUE_LCD.init();
+  JOSUE_LCD.backlight();
+  if(digitalRead(configRTC) == HIGH){
+    setDate(); }
+    JOSUE_LCD.setCursor(0,0);
+    JOSUE_LCD.print(" EEGSA - KINAL  ");
+    JOSUE_LCD.setCursor(0,1);
+    JOSUE_LCD.print("                ");}
 void loop() {
-  // Revisamos si hay nuevas tarjetas  presentes
-  if ( mfrc522.PICC_IsNewCardPresent()) 
-        {  
-      //Seleccionamos una tarjeta
-            if ( mfrc522.PICC_ReadCardSerial()) 
-            {
-                  // Enviamos serialemente su UID
-                  for (byte i = 0; i < mfrc522.uid.size; i++) {
-                          ActualUID[i]=mfrc522.uid.uidByte[i];          
-                  } 
-                  Serial.print("     ");                 
-                  //comparamos los UID para determinar si es uno de nuestros usuarios  
-                  if(compareArray(ActualUID,Usuario1)){
-                    Serial.println("Verificado: Estrada");
-                    calculos();
-                    }
-                  else if(compareArray(ActualUID,Usuario2)){
-                    Serial.println("Verificado: Quim");
-                    calculos();
-                    }
-                  else{
-                    Serial.println("Acceso denegado...");
-                  }
-                  // Terminamos la lectura de la tarjeta tarjeta  actual
-                  mfrc522.PICC_HaltA();
-          
-            }
-      
+  if ( mfrc522.PICC_IsNewCardPresent())  {  
+ if ( mfrc522.PICC_ReadCardSerial())   {
+ for (byte i = 0; i < mfrc522.uid.size; i++) {
+      ActualUID[i]=mfrc522.uid.uidByte[i];           } 
+    Serial.print("     ");                  
+ if(compareArray(ActualUID,Usuario1)){
+   Serial.println("Verificado: ALV002");
+   Serial.print("Fecha de acceso: ");
+   Serial.print(Clock.getDate(), DEC);
+   Serial.print("/");
+   Serial.print(Clock.getMonth(Century), DEC);
+   Serial.print(" ");
+   Serial.print(Clock.getHour(h12, PM), DEC);
+   Serial.print(":");
+   Serial.print(Clock.getMinute(), DEC);
+   Serial.print(":");
+   Serial.println(Clock.getSecond(), DEC);
+        calculos();}
+ else if(compareArray(ActualUID,Usuario2)){
+   Serial.println("Verificado: PADILLA");
+   Serial.print("Fecha de acceso: ");
+   Serial.print(Clock.getDate(), DEC);
+   Serial.print("/");
+   Serial.print(Clock.getMonth(Century), DEC);
+   Serial.print(" ");   
+   Serial.print(Clock.getHour(h12, PM), DEC);
+   Serial.print(":");
+   Serial.print(Clock.getMinute(), DEC);
+   Serial.print(":");
+   Serial.println(Clock.getSecond(), DEC);
+     calculos();}
+ else{
+    Serial.println("Acceso fallido");
+   JOSUE_LCD.setCursor(0,1);
+   JOSUE_LCD.print("NO REGISTRADO");
+   Serial.print("Fecha de intento de acceso: ");
+   Serial.print(Clock.getDate(), DEC);
+   Serial.print("/");
+   Serial.print(Clock.getMonth(Century), DEC);
+   Serial.print(" ");
+   Serial.print(Clock.getHour(h12, PM), DEC); 
+   Serial.print(":");
+   Serial.print(Clock.getMinute(), DEC);
+   Serial.print(":");
+   Serial.println(Clock.getSecond(), DEC);
+   delay(2000);
   }
-  
-}
-
-//Función para comparar dos vectores
- boolean compareArray(byte array1[],byte array2[])
+    mfrc522.PICC_HaltA();          
+   } }
+else{
+  JOSUE_LCD.setCursor(0,0);
+  JOSUE_LCD.print(" EEGSA - KINAL  ");
+  JOSUE_LCD.setCursor(0,1);
+  JOSUE_LCD.print("MEDIDOR ENERGIA ");   
+}}
+ boolean compareArray(byte array1[],byte array2[];
 {
   if(array1[0] != array2[0])return(false);
   if(array1[1] != array2[1])return(false);
@@ -66,24 +114,83 @@ void loop() {
   if(array1[3] != array2[3])return(false);
   return(true);
 }
-
+  void setDate( ) {
+  if (digitalRead(configRTC) == HIGH) {
+    GetDateStuff(Year, Month, Date, DoW, Hour, Minute, Second);
+    Clock.setClockMode(false);  
+    Clock.setSecond(Second);
+    Clock.setMinute(Minute);
+    Clock.setHour(Hour);
+    Clock.setDate(Date);
+    Clock.setMonth(Month);
+    Clock.setYear(Year);
+    Clock.setDoW(DoW); }}
+void GetDateStuff(byte& Year, byte& Month, byte& Day, byte& DoW, byte& Hour, byte& Minute, byte& Second) { /* function GetDateStuff */
+  boolean GotString = false;
+  char InChar;
+  byte Temp1, Temp2;
+  char InString[20];
+  byte j = 0;
+  while (!GotString) {
+    if (Serial.available()) {
+      InChar = Serial.read();
+      InString[j] = InChar;
+      j += 1;
+      if (InChar == 'x') {
+        GotString = true;} } }
+  Serial.println(InString);
+  Temp1 = (byte)InString[0] - 48;
+  Temp2 = (byte)InString[1] - 48;
+  Year = Temp1 * 10 + Temp2; // año
+  Temp1 = (byte)InString[2] - 48;
+  Temp2 = (byte)InString[3] - 48;
+  Month = Temp1 * 10 + Temp2;// mes
+  Temp1 = (byte)InString[4] - 48;
+  Temp2 = (byte)InString[5] - 48;
+  Day = Temp1 * 10 + Temp2; 
+  DoW = (byte)InString[6] - 48;// dia
+  Temp1 = (byte)InString[7] - 48;
+  Temp2 = (byte)InString[8] - 48;
+  Hour = Temp1 * 10 + Temp2; // hora
+  Temp1 = (byte)InString[9] - 48;
+  Temp2 = (byte)InString[10] - 48;
+  Minute = Temp1 * 10 + Temp2;//minutos
+  Temp1 = (byte)InString[11] - 48;
+  Temp2 = (byte)InString[12] - 48;
+  Second = Temp1 * 10 + Temp2;// segundos 
+}
 void calculos(){
-  
-  float voltaje =  (float)15*analogRead(A0)/1023;
-  Serial.print("Voltaje: ");
-  Serial.print(voltaje);
-  Serial.println(" V");
-  delay(500);
-
-  float voltajeSensor= analogRead(A1)*(5 / 1023.0); //lectura del sensor   
-  float I=abs((voltajeSensor-2.5)/Sensibilidad); //Ecuación  para obtener la corriente
-  Serial.print("Corriente: ");
-  Serial.print(I,3);   //3 decimales
-  Serial.println(" A");
-  delay(200); 
-
+  JOSUE_LCD.setCursor(0,1);
+  JOSUE_LCD.print("                ");
+  JOSUE_LCD.setCursor(2,1);
+  JOSUE_LCD.print("V: ");
+  float voltaje =  (float)25*analogRead(pinvoltaje)/1023;
+  JOSUE_LCD.print(voltaje);
+  JOSUE_LCD.print(" V   ");//  Voltaje
+  delay(2000); 
+  JOSUE_LCD.setCursor(2,1);
+  JOSUE_LCD.print("I: ");
+  float med = analogRead(corriente)*(5.0/1023.0);
+  float I = abs((2.5 - med)/Sensibilidad);
+  if(abs(I) >= 1 ){
+  JOSUE_LCD.print(I,3);
+  JOSUE_LCD.print(" A   ");
+  }
+  if(abs(I) < 1 ){
+  JOSUE_LCD.print(I*1000,0);
+  JOSUE_LCD.print(" mA   ");//  Corriente
+  }
+  delay(2000);
+  JOSUE_LCD.setCursor(2,1);
   float P = voltaje * I;
-  Serial.print("Potencia: ");
-  Serial.print(P); 
-  Serial.println(" W"); 
+  JOSUE_LCD.print("P: ");
+  if(abs(P) >= 1 ){
+  JOSUE_LCD.print(I,3);
+  JOSUE_LCD.print(" W   ");
+  }
+  if(abs(P) < 1 ){
+  JOSUE_LCD.print(P*1000,0);
+  JOSUE_LCD.print(" mW   ");//  Potencia
+  }
+  delay(2000);
   }
